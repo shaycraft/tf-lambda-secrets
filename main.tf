@@ -39,6 +39,37 @@ resource "aws_iam_role_policy_attachment" "iam_role_policy_attachment_lambda_vpc
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
 
+resource "aws_secretsmanager_secret" "foobar_secrets" {
+  name        = "SECRETS_FOOBAR"
+  description = "Secrets for testing, not actually sensitive"
+}
+
+resource "aws_secretsmanager_secret_version" "foobar_secrets_version" {
+  secret_id = aws_secretsmanager_secret.foobar_secrets.id
+
+
+  secret_string = jsonencode({
+    user     = "foobar_user"
+    password = "foobar"
+  })
+}
+
+resource "aws_iam_policy" "foobar_secrets_policy" {
+  name = "LambdaSecretsAccess"
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = [
+          "secretsmanager:GetSecretValue"
+        ],
+        Effect   = "Allow",
+        Resource = aws_secretsmanager_secret.foobar_secrets.arn
+      }
+    ]
+  })
+}
+
 # data declarations
 
 data "archive_file" "archive" {
