@@ -6,11 +6,11 @@ data "aws_region" "current" {}
 
 resource "aws_lambda_function" "lambda_function" {
   filename      = local.lambda_payload_file
-  function_name = "terraform-lambda-secrets-test" 
-  description   = "Test lamda to test private VPC lambda and AWS secrets connections" 
+  function_name = "terraform-lambda-secrets-test"
+  description   = "Test lamda to test private VPC lambda and AWS secrets connections"
   role          = aws_iam_role.iam_for_lambda.arn
   handler       = "index.handler"
-  runtime       = "nodejs18.x" 
+  runtime       = "nodejs18.x"
 
   source_code_hash = data.archive_file.archive.output_base64sha256
 
@@ -37,4 +37,39 @@ resource "aws_iam_role_policy_attachment" "policy_attachment" {
 resource "aws_iam_role_policy_attachment" "iam_role_policy_attachment_lambda_vpc_access_execution" {
   role       = aws_iam_role.iam_for_lambda.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+}
+
+# data declarations
+
+data "archive_file" "archive" {
+  output_path = local.lambda_payload_file
+  type        = "zip"
+  source_dir  = "./src"
+}
+
+data "aws_iam_policy_document" "policy_document_assume_lambda_role" {
+  statement {
+    sid    = "TfLambdaAssumeRole"
+    effect = "Allow"
+
+    principals {
+      identifiers = ["lambda.amazonaws.com"]
+      type        = "Service"
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+}
+
+data "aws_iam_policy_document" "policy_document_exec" {
+  version = "2012-10-17"
+
+  statement {
+    sid    = "TfLambdaExecPermission"
+    effect = "Allow"
+
+    resources = ["*"]
+
+    actions = ["lambda:InvokeFunction"]
+  }
 }
