@@ -45,6 +45,7 @@ data "archive_file" "archive" {
   output_path = local.lambda_payload_file
   type        = "zip"
   source_dir  = "./src"
+  excludes    = ["node_modules"]
 }
 
 data "aws_iam_policy_document" "policy_document_assume_lambda_role" {

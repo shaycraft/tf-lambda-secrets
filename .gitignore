@@ -1,3 +1,4 @@
 .terraform
 terraform.tfstate*
 ssh-key*
+node_modules
