@@ -24,14 +24,14 @@ resource "aws_iam_role" "iam_for_lambda" {
   assume_role_policy = data.aws_iam_policy_document.policy_document_assume_lambda_role.json
 }
 
-resource "aws_iam_policy" "policy" {
+resource "aws_iam_policy" "foobar_secrets_lambda_exec_policy" {
   name   = "allow-lambda-exec-policy"
   policy = data.aws_iam_policy_document.policy_document_exec.json
 }
 
 resource "aws_iam_role_policy_attachment" "policy_attachment" {
   role       = aws_iam_role.iam_for_lambda.name
-  policy_arn = aws_iam_policy.policy.arn
+  policy_arn = aws_iam_policy.foobar_secrets_policy.arn
 }
 
 resource "aws_iam_role_policy_attachment" "iam_role_policy_attachment_lambda_vpc_access_execution" {
@@ -55,7 +55,9 @@ resource "aws_secretsmanager_secret_version" "foobar_secrets_version" {
 }
 
 resource "aws_iam_policy" "foobar_secrets_policy" {
-  name = "LambdaSecretsAccess"
+  name        = "LambdaSecretsAccessPolicy"
+  description = "Allows lambda to read secret"
+
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -69,6 +71,7 @@ resource "aws_iam_policy" "foobar_secrets_policy" {
     ]
   })
 }
+
 
 # data declarations
 
