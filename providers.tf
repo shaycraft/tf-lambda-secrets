@@ -2,8 +2,10 @@ provider "aws" {
   region = "us-west-2"
 }
 
+
 # data declarations
 
+data "aws_availability_zones" "azs" {}
 data "archive_file" "archive" {
   output_path = local.lambda_payload_file
   type        = "zip"

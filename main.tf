@@ -3,7 +3,6 @@ provider "aws" {
 }
 
 data "aws_region" "current" {}
-
 resource "aws_lambda_function" "lambda_function" {
   filename      = local.lambda_payload_file
   function_name = "terraform-lambda-secrets-test"
@@ -70,4 +69,12 @@ resource "aws_iam_policy" "foobar_secrets_policy" {
       }
     ]
   })
+}
+
+# vpc
+module "vpc" {
+  source          = "terraform-aws-modules/vpc/aws"
+  cidr            = "10.0.0.0/16"
+  private_subnets = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+  azs             = data.aws_availability_zones.azs.names
 }
